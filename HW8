@@ -1,0 +1,59 @@
+### Homework 8 - Victoria Salerno
+
+# I am focusing on using gbif because I am interested in using the wallace package for modeling, but am curious about background processes of gbif data use (outside of the wallace package)
+
+#for this first part I am interested in knowing where the species is so far
+
+#This is going to be for osmia lignaria, a species of bee that I work with.
+
+##### PART 1 ######
+
+#(install) and load library
+install.packages("rgbif")
+library(rgbif)
+library(ggplot2)
+library(dplyr)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+#Specify which species I am looking for (telling it which and to use the GBIF offical name)
+species <- "Osmia lignaria" 
+gbif_name <- name_backbone(species)
+gbif_name$usageKey 
+
+#gather occurance data but only for points that have coordinates and for a total of 10,000 gathered
+occurance_data_olig <- occ_search(
+  taxonKey = gbif_name$usageKey,
+  hasCoordinate = TRUE,
+  limit = 10000
+)
+
+#create data frame for occurance data of osmia lignaria
+osmia_df <- occurance_data_olig$data
+
+#create an object for world map
+world_map <- ne_countries(scale = "medium", returnclass = "sf")
+
+#Plot occurance data of o.lignaria on world map (restricting map to N. Hemisphere for similar latitude interest)
+ggplot(data = world_map) +
+  geom_sf(fill = "white") +
+  geom_point(
+    data = osmia_df,
+    aes(x = decimalLongitude, y = decimalLatitude),
+    color = "#0A8C8C",  #color to match species coloration
+    alpha = 0.6,
+    size = 0.25
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Occurrences of Osmia lignaria Worldwide",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  coord_sf(xlim = c(-180, 60), ylim = c(0, 90)) #restricting the map to only show areas of the world where the points show up to see points more clearly
+
+
+##### PART 2 ######
+# EDA of Data
+
+
