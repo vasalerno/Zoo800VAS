@@ -28,6 +28,12 @@ occurance_data_olig <- occ_search(
   limit = 10000
 )
 
+
+##### PART 2 ######
+# EDA of Data
+
+### PLOT OF OCCURANCE DATA ON RESTRICTED WORLD MAP ###
+
 #create data frame for occurance data of osmia lignaria
 osmia_df <- occurance_data_olig$data
 
@@ -52,8 +58,5 @@ ggplot(data = world_map) +
   ) +
   coord_sf(xlim = c(-180, 60), ylim = c(0, 90)) #restricting the map to only show areas of the world where the points show up to see points more clearly
 
-
-##### PART 2 ######
-# EDA of Data
 
 
