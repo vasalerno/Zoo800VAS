@@ -28,14 +28,11 @@ occurance_data_olig <- occ_search(
   limit = 10000
 )
 
+#create data frame for occurance data of osmia lignaria
+osmia_df <- occurance_data_olig$data
 
 ##### PART 2 ######
 # EDA of Data
-
-### PLOT OF OCCURANCE DATA ON RESTRICTED WORLD MAP ###
-
-#create data frame for occurance data of osmia lignaria
-osmia_df <- occurance_data_olig$data
 
 #create an object for world map
 world_map <- ne_countries(scale = "medium", returnclass = "sf")
@@ -57,6 +54,26 @@ ggplot(data = world_map) +
     y = "Latitude"
   ) +
   coord_sf(xlim = c(-180, 60), ylim = c(0, 90)) #restricting the map to only show areas of the world where the points show up to see points more clearly
+
+View(osmia_df)
+
+# Create a histogram to look at the frequency of observations per year bin
+ggplot(data = osmia_df, aes(x = year)) +
+  geom_histogram(bins = 50, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Observations for Osmia lignaria", x = "Year", y = "Frequency")
+
+
+basisOfRecord_counts <- osmia_df %>%
+  count(basisOfRecord)
+
+ggplot(basisOfRecord_counts, aes(x = basisOfRecord, y = n)) +
+  geom_col(fill = "maroon", color = "black") +
+  theme_minimal() +
+  labs(
+    title = "Count of Records by Record Observation Type",
+    x = "Observation Type",
+    y = "Number of Records"
+  )
 
 
 
