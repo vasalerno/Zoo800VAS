@@ -1,16 +1,17 @@
 ### Homework 9 ###
 # Group: Victoria,
+------------------------------------------------------------------------------------------------------------------------------------------------
+### OBJECTIVE 1 ###
+### Part A ###
 
-### Objective 1 ###
+#lin_regress <- (y_intercept +(slope(x1)) + rand_var) #note for understanding the formular for simple linear regression
 
-#lin_regress <- (intercept +(slope(x1)) + rand_var)
-
-#Generate random numbers, starting at the 123 point
+#Generate random numbers, starting at the 123 point (setting this point allows the group to get the same generated numbers, took me a while to figure this out)
 set.seed(123)
 
 #Set values for variables
-y_int <- 15
-beta <- 5
+y_int <- -15
+slope <- 17
 sigma_values <- c(1, 10, 25)
 
 #Set up an empty data frame
@@ -20,12 +21,15 @@ for (signma in sigma_values) {
   #Generate x values without error
   x <- runif(100, 0, 10)
   #creat an equation for normally distributed error (to use then with y)
-  rand_error <- rnorm(100, mean = 0, sd = "sigma")
+  rand_error <- rnorm(100, mean = 0, sd = sigma)
   #Generate y values
-  y <- ("y_int" + ("beta"*x) + rand_error)
+  y <- (y_int + (slope*x) + rand_error)
 #Combine values in a data frame by creating a df for the generated values and then combine it with the inital empty dataset
 df <- data.frame(x, y, sigma)
 lin_regress_df <-rbind(lin_regress_df, df)
+
+
+### Part B ###
 
 
 
