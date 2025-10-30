@@ -55,5 +55,33 @@ plot_sigma_var
 #A) As the observation error increases (the sigma value), the ability to detect a relationship between y and x becomes less clear as the points (visually) become more spread out and less linear. The slope per se of the data is no longer as clear.
   
 -----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+### OBJECTIVE 2 ###
+  
+### Part A ### 
+  
+# Objective - Using simulations of coin flips (Bernoulli trials), plot the probability (number of times out of 100) that you determine the coin is significantly unfair (alpha < 0.05) for 1 to 20 coin flips when p = 0.55.
+  #Note: The way I am thinking of this is simialr to the CLT demo for set up, that made some sense to me
+
+#Number of times to repeat coin flip
+N <- 100
+p <- 0.55
+
+#set up an empty vector for simulation output
+flip_value <- integer(N+1)
+prob_flip <- numeric(N+1)
+output_sim = data.frame(flip_value, prob)
+
+#create a for loop to test out flipping a coin 20 times and running that simulation 100 times
+## r has a binomial function that I am going to use to look at the probability
+for (k in 0:N)
+{
+ probability <- dbinom(x = 9 , size = 20 , prob = p)
+ flip_value[k + 1] <- k
+ prob_flip[k + 1] <- probability
+}
+
+plot(flip_value, prob_flip,
+     type = "h")
 
 
