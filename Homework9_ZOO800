@@ -1,12 +1,13 @@
 ### Homework 9 ###
-# Group: Victoria,
-------------------------------------------------------------------------------------------------------------------------------------------------
-### OBJECTIVE 1 ###
-### Part A ###
-
+# Solo Assignment
+---------------------------------------------------------------------------------------------------------------
+  ### OBJECTIVE 1 ###
+  ### Part A ###
+  
 #lin_regress <- (y_intercept +(slope(x1)) + rand_var) #note for understanding the formular for simple linear regression
-
+  
 #Generate random numbers, starting at the 123 point (setting this point allows the group to get the same generated numbers, took me a while to figure this out)
+  
 set.seed(123)
 
 #Set values for variables
@@ -17,19 +18,42 @@ sigma_values <- c(1, 10, 25)
 #Set up an empty data frame
 lin_regress_df <-data.frame()
 
-for (signma in sigma_values) {
+for (sigma in sigma_values) {
   #Generate x values without error
   x <- runif(100, 0, 10)
   #creat an equation for normally distributed error (to use then with y)
   rand_error <- rnorm(100, mean = 0, sd = sigma)
   #Generate y values
   y <- (y_int + (slope*x) + rand_error)
-#Combine values in a data frame by creating a df for the generated values and then combine it with the inital empty dataset
-df <- data.frame(x, y, sigma)
-lin_regress_df <-rbind(lin_regress_df, df)
+  #Combine values in a data frame by creating a df for the generated values and then combine it with the inital empty dataset
+  df <- data.frame(x, y, sigma)
+  lin_regress_df <-rbind(lin_regress_df, df)
+}
+View(lin_regress_df)
 
-
+---------------
 ### Part B ###
+  #create a graph that has three columns, each displaying one of the three sigma values we were interested in looking at
+library(ggplot2)
 
+plot_sigma_var <- ggplot(lin_regress_df, aes(x = x, y = y)) +
+    geom_point() +
+    facet_wrap(~ sigma, ncol = 3) +
+    labs(
+     title = "Values of X and Y across different Sigma values",
+     x = "x",
+     y = "y",
+     ) +
+  theme_minimal()
+    
+plot_sigma_var
+
+--------------
+### Part C ###
+#Q) How does the ability to visually detect a relationship between y and x change as observation error increases?
+  
+#A) As the observation error increases (the sigma value), the ability to detect a relationship between y and x becomes less clear as the points (visually) become more spread out and less linear. The slope per se of the data is no longer as clear.
+  
+-----------------------------------------------------------------------------------------------------------------------------------
 
 
