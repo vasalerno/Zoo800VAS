@@ -1,0 +1,18 @@
+## Homework 10: Victoria Salerno (solo)
+## Objective 1:
+#(A) I am using data from WiscoNet for Average Dew Point (f), Average Relative
+# Humidity (pct), Average Vapor Pressure (mb), and Average Pressure (mb) at five
+# minute intervals from the Antigo Research Station.
+#(B) Using lm(), fit a linear regression to the data
+ant_df <- read.csv("Antigo_06_01_2025-11_07_2025.csv")
+View(ant_df)
+#linerar regression for relative humidity and average vapor pressure
+str(ant_df$X5.Minute.Average.Vapor.Pressure..mb.)
+str(ant_df$X5.Minute.Average.Relative.Humidity..pct.)
+ant_df$X5.Minute.Average.Vapor.Pressure..mb. <- as.numeric(as.character(ant_df$X5.Minute.Average.Vapor.Pressure..mb.))
+ant_rhvp <- lm(X5.Minute.Average.Vapor.Pressure..mb. ~ X5.Minute.Average.Relative.Humidity..pct., data = ant_df)
+plot(ant_rhvp)
+
+
+
+## I am at a conference confirming/locking in a committee member. This is how far i got before I got here. Will be fishing up asap.
