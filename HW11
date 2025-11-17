@@ -1,0 +1,108 @@
+## VAS HW 11 - Paired with Evan Peepo for data swap
+library(ggplot2)
+set.seed(123)
+
+#FIRST PART OF HW#
+y_int1 <- 10
+y_int2 <- 20
+slope1 <- 15
+slope2 <- 5
+sigma <- 2
+
+#Set up an empty data frame
+lin_regress_vas <-data.frame()
+#create values for x
+x <- runif(100, 0, 10)
+#creat an equation for normally distributed error (to use then with y)
+rand_error <- rnorm(100, mean = 0, sd = sigma)
+#Generate y values
+y <- (y_int1 + (slope1*x) + rand_error)
+y2 <-(y_int2 + (slope1*x) + rand_error)
+
+df1 <- data.frame(x, y, sigma)
+df2 <- data.frame(x, y2, sigma)
+
+#set up ggplot using the two data frames
+ggplot() +
+  geom_point(data = df1, aes(x = x, y = y), color = "blue") +
+  geom_smooth(data = df1, aes(x = x, y = y), method = "lm", se = FALSE, color = "blue") +
+  geom_point(data = df2, aes(x = x, y = y2), color = "purple") +
+  geom_smooth(data = df2, aes(x = x, y = y2), method = "lm", se = FALSE, color = "purple") +
+  labs(
+    title = "Combined Plot of df1 and df2",
+    x = "x",
+    y = "y value"
+  ) +
+  theme_minimal()
+
+#Plot showing that the two df have the same slope but different y intercepts.
+
+plot_VAS_sim1
+plot_VAS_sim2
+
+
+#--------------------------------------------------------------
+
+### This is the question that I provided to Evan for my data:
+#Researchers monitored Temperature (in Celsius) and relative humidity (%) across two sites (Auburn and Merced, CA)  to look at abiotic conditions tied to bee fitness. How does relative humidity (%) in response to temperature (C) compare between two different research sites?
+#--------------------------------------------------------------
+
+#DATA SWAP WITH EVAN PEEPO 
+
+#I am not quite sure about what it means to reduce down to stat significant terms, so I went about this how I think you would run a full anova/ancova
+
+library(ggplot2)
+
+EPdata <- read.csv("pinyon_juniper_growth.csv") #read csv in
+
+
+lm_EPdata <- lm(growth_mm ~ vwc_percent, data = EPdata) #run linear model
+summary(lm_EPdata ) #summarize lm results
+
+#PLot lm for both tree species (not looking at the two separately)
+ggplot(lm_EPdata, aes(x = vwc_percent, y = growth_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "purple") +
+  theme_minimal() +
+  labs(
+    title = "Growth vs Soil Moisture - EP TREE DATA",
+    x = "Soil Moisture (%)",
+    y = "Diameter Growth (mm)"
+  )
+
+#ANCOVA to look at twp species
+lm_ancova <- lm(growth_mm ~ vwc_percent + species, data = EPdata)
+anova(lm_ancova) #run anova to look at variation acorss species
+summary(lm_ancova) #summarize lm to compare
+
+
+#plot the anova/ancova for the two species to look at their differences
+ggplot(lm_ancova , aes(x = vwc_percent, y = growth_mm, color = species)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(
+    title = "Growth vs Soil Moisture by Tree Species",
+    x = "Soil Moisture (%)",
+    y = "Diameter Growth (mm)"
+  )
+
+coef(lm_ancova)
+
+# Creating one model per species to double check the same stats
+lm_pinyon <- lm(growth_mm ~ vwc_percent, data = EPdata[EPdata$species == "pinyon", ])
+lm_juniper <- lm(growth_mm ~ vwc_percent, data = EPdata[EPdata$species == "juniper", ])
+
+summary(lm_pinyon)
+summary(lm_juniper)
+
+
+### CONTEXT PROVIDED BY EVAN ###
+
+#Researchers monitored yearly diameter growth (mm) for 50 pinyon and 50 juniper across different soil moistures (measured as volumetric water content, %). How does tree growth (y) in response to soil moisture (x) compare between pinyon and juniper trees?
+
+#ANSWER:
+#For the juniper trees and the pinyon trees it seems that they had a similar growth rate overall, but the juniper trees started off at a higher mm diameter overall. Relationship between soil moisture and growth for both trees had a similar slope but different intercept.
+
+
+
