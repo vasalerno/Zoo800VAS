@@ -3,26 +3,31 @@ library(ggplot2)
 set.seed(123)
 
 #FIRST PART OF HW#
+#Set values for y-intercepts, slope, and sigma
 y_int1 <- 10
 y_int2 <- 20
 slope1 <- 15
 slope2 <- 5
 sigma <- 2
 
-#Set up an empty data frame
+#Set up an empty data frame to populate (I am not sure that this is necessary if I am not combining dfs later)
 lin_regress_vas <-data.frame()
+
 #create values for x
 x <- runif(100, 0, 10)
+
 #creat an equation for normally distributed error (to use then with y)
 rand_error <- rnorm(100, mean = 0, sd = sigma)
+
 #Generate y values
 y <- (y_int1 + (slope1*x) + rand_error)
 y2 <-(y_int2 + (slope1*x) + rand_error)
 
+#create df for the two y value sets
 df1 <- data.frame(x, y, sigma)
 df2 <- data.frame(x, y2, sigma)
 
-#set up ggplot using the two data frames
+#set up ggplot using the two data frames (not combining the df)
 ggplot() +
   geom_point(data = df1, aes(x = x, y = y), color = "blue") +
   geom_smooth(data = df1, aes(x = x, y = y), method = "lm", se = FALSE, color = "blue") +
@@ -73,7 +78,7 @@ ggplot(lm_EPdata, aes(x = vwc_percent, y = growth_mm)) +
 #ANCOVA to look at twp species
 lm_ancova <- lm(growth_mm ~ vwc_percent + species, data = EPdata)
 anova(lm_ancova) #run anova to look at variation acorss species
-summary(lm_ancova) #summarize lm to compare
+summary(lm_ancova) #summarize data
 
 
 #plot the anova/ancova for the two species to look at their differences
@@ -87,12 +92,13 @@ ggplot(lm_ancova , aes(x = vwc_percent, y = growth_mm, color = species)) +
     y = "Diameter Growth (mm)"
   )
 
-coef(lm_ancova)
+coef(lm_ancova) #I think that this does the same thing as below but across the whole data set, this confused me a bit, but was something I came across when troubleshooting
 
 # Creating one model per species to double check the same stats
 lm_pinyon <- lm(growth_mm ~ vwc_percent, data = EPdata[EPdata$species == "pinyon", ])
 lm_juniper <- lm(growth_mm ~ vwc_percent, data = EPdata[EPdata$species == "juniper", ])
 
+#view the summary data
 summary(lm_pinyon)
 summary(lm_juniper)
 
