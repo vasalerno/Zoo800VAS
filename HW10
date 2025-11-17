@@ -1,11 +1,10 @@
 ## Homework 10: Victoria Salerno (solo)
 ## Objective 1:
-#(A) I am using data from WiscoNet for Average Dew Point (f), Average Relative
-# Humidity (pct), Average Vapor Pressure (mb), and Average Pressure (mb) at five
-# minute intervals from the Antigo Research Station.
+#(A) I am using data that looks at the abiotic conditions (temperature in Celcius and Relative Humidity (%)) for two field sites in California - Auburn amd Merced. The two abiotic variables/measurements are important for bee fitness and behavior.
+
 #(B) Using lm(), fit a linear regression to the data
-ant_df <- read.csv("Antigo_06_01_2025-11_07_2025.csv")
-View(ant_df)
+CA_df <- read.csv(".csv")
+View(CA_df)
 #linerar regression for relative humidity and average vapor pressure
 str(ant_df$X5.Minute.Average.Vapor.Pressure..mb.)
 str(ant_df$X5.Minute.Average.Relative.Humidity..pct.)
