@@ -1,17 +1,142 @@
 ## Homework 10: Victoria Salerno (solo)
+#Updated for new data (actual data from research)
+
+
 ## Objective 1:
 #(A) I am using data that looks at the abiotic conditions (temperature in Celcius and Relative Humidity (%)) for two field sites in California - Auburn amd Merced. The two abiotic variables/measurements are important for bee fitness and behavior.
+library(ggplot2)
 
-#(B) Using lm(), fit a linear regression to the data
-CA_df <- read.csv(".csv")
-View(CA_df)
-#linerar regression for relative humidity and average vapor pressure
-str(ant_df$X5.Minute.Average.Vapor.Pressure..mb.)
-str(ant_df$X5.Minute.Average.Relative.Humidity..pct.)
-ant_df$X5.Minute.Average.Vapor.Pressure..mb. <- as.numeric(as.character(ant_df$X5.Minute.Average.Vapor.Pressure..mb.))
-ant_rhvp <- lm(X5.Minute.Average.Vapor.Pressure..mb. ~ X5.Minute.Average.Relative.Humidity..pct., data = ant_df)
-plot(ant_rhvp)
+CAdata <- read.csv("VAS_oCAM_TempRelHum.csv") #read csv in
+View(CAdata)
+head(CAdata)
+
+lm_CAdata <- lm(temp_C ~ relhum, data = CAdata) #run linear model
+summary(lm_CAdata ) #summarize lm results
+
+#PLot lm for both tree species (not looking at the two separately)
+ggplot(lm_CAdata, aes(x = temp_C , y = relhum)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "purple") +
+  theme_minimal() +
+  labs(
+    title = "Temp v Relative Humidity - CA sites",
+    x = "Temperature (C)",
+    y = "Relative Humidity (%)"
+  )
+
+#ANCOVA to look at twp species
+lm_CAancova <- lm(temp_C ~ relhum + Site, data = CAdata)
+anova(lm_CAancova) #run anova to look at variation acorss species
+summary(lm_CAancova) #summarize lm to compare
 
 
+#plot the anova/ancova for the two species to look at their differences
+ggplot(lm_CAancova , aes(x = temp_C, y = relhum, color = Site)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(
+    title = "Temp v Relative Humidity for Auburn and Merced, CA",
+    x = "Temperature (C)",
+    y = "Relative Humidity (%)"
+  )
 
-## I am at a conference confirming/locking in a committee member. This is how far i got before I got here. Will be fishing up asap.
+
+# Creating one model per species to double check the same stats
+lm_Merced <- lm(temp_C ~ relhum , data = CAdata[CAdata$Site == "Merced_CA", ])
+lm_Auburn<- lm(temp_C ~ relhum , data = CAdata[CAdata$Site == "Auburn_CA", ])
+
+summary(lm_Merced)
+summary(lm_Auburn)
+
+
+#-------------------------------------------------------------------------------
+
+#Looking at it with different order for understanding
+
+lm_CAancova2 <- lm(relhum ~ temp_C  + Site, data = CAdata)
+anova(lm_CAancova2) #run anova to look at variation acorss species
+summary(lm_CAancova2) #summarize lm to compare
+
+
+#plot the anova/ancova for the two species to look at their differences
+ggplot(lm_CAancova2 , aes(x = relhum, y = temp_C, color = Site)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(
+    title = "Relative Humidity v Temp for Auburn and Merced, CA",
+    x = "Relative Humidity (%)",
+    y = "Temperature (C)"
+  )
+
+# Creating one model per species to double check the same stats
+lm_Merced2 <- lm(relhum ~ temp_C , data = CAdata[CAdata$Site == "Merced_CA", ])
+lm_Auburn2 <- lm(relhum ~ temp_C  , data = CAdata[CAdata$Site == "Auburn_CA", ])
+
+summary(lm_Merced2)
+summary(lm_Auburn2)
+
+
+#Objective 2
+
+
+## VAS HW 11 - Paired with Evan Peepo for data swap
+library(ggplot2)
+set.seed(123)
+
+#FIRST PART OF HW#
+#Set values for y-intercepts, slope, and sigma
+y_int <- 10
+slope <- 15
+sigma <- 2
+
+#create values for x
+x <- runif(100, 0, 10)
+
+#using a negative binomial error
+error <- rnbinom(100, size = 5, mu = 4) - 4  
+
+#Generate y values
+y <- (y_int + (slope*x) + error)
+
+
+#create df for the two y value sets
+df <- data.frame(x, y, sigma)
+
+
+#set up ggplot using the two data frames (not combining the df)
+ggplot() +
+  geom_point(data = df, aes(x = x, y = y), color = "blue") +
+  geom_smooth(data = df, aes(x = x, y = y), method = "lm", se = FALSE, color = "blue") +
+  labs(
+    title = "Simulated data plot",
+    x = "x",
+    y = "y"
+  ) +
+  theme_minimal()
+
+lm_model <- lm(y ~ x, data = df)
+
+#create data frame for predicting values
+df_predict<- data.frame(x = df$x) #pull x values into new dataframe
+prediction <- predict(lm_model, df_predict, interval = "prediction", level = 0.95)
+#generate predicted values for x values at the 95%. This should provide lower and upper bounds and a fit value for each
+predictions_95 <- cbind(df_predict, prediction)
+head(predictions_95)
+
+#Plot the predictions with the previous and predicted dataframe
+ggplot(df, aes(x = x, y = y)) +
+  geom_point() +
+  geom_line(data = predictions_95, aes(x = x, y = fit), color = "purple") +
+  geom_ribbon(data = predictions_95, aes(x = x, ymin = lwr, ymax = upr), alpha = 0.2) +
+  theme_minimal() +
+  labs(title = "95th Percentile Predictions")
+
+
+#What fraction of your data (Y values) falls within the 95% prediction interval?
+## The majority of the y values fall within the 95% prediction interval observationally.
+
+#What does this imply for how your estimated uncertainty in the predictions compares to the
+true uncertainty.
+## My understanding is this means that estimated uncertainty provides more leniencey for interpretation than true uncertainty.
