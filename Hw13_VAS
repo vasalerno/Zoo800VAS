@@ -1,0 +1,120 @@
+#------ Homework 13 - VAS Solo ----- 
+#this assignment I struggled a bit more with, because the formulas did not make too much sense to me intuitively, so I used chatgpt to explain and format the formulas 
+
+library(readr)
+dragon_data <- read_csv("dragon_data.csv")
+
+# Set x and y values
+x <- dragon_data$size
+y <- dragon_data$acres_on_fire
+
+#Objective 1
+#Estimate the parameters of the linear regression of area burned on dragon size using the analytical solution to the linear regression (equation in lecture).
+
+#find the means for my values
+xbar <-mean(x)
+ybar <- mean(y)
+
+#finding the slope (breaking it down in to numerator and denominator because i think that the only way to do this in R)
+### I had to ask chatgpt to explain the equations to me a bit because I got overwhelmed by the symbols
+
+slope_numerator   <- sum((x - xbar) * (y - ybar))
+slope_denominator <- sum((x - xbar)^2)
+
+slope <- slope_numerator/slope_denominator #this value ends up being 1.3467
+intercept <- ybar -(slope*xbar) #this value ends up being -1.3756
+
+lm_check <- lm(y ~ x)
+View(lm_check)
+
+
+#The slope is 1.3467 and intercept value is -1.3756 (these values are close to the built in lm parameters!)
+
+# Objective 2
+# Estimate the parameters of the linear regression of area burned on dragon size using ordinary least squares based on:
+## A grid search (estimate the slope and intercept to the nearest 0.1)
+
+# Number of observations
+n <- length(y)
+
+# Pull out slope and intercept from lm() package in R to get closer values
+slope_ob2 <- coef(lm_check)[1]   # this is the slope vlaue
+intercept_ob2 <- coef(lm_check)[2]   # this is the intercept value
+
+# Estimated sigma from lm
+sigma_bar <- summary(lm_check)$sigma
+
+# Create search ranges
+slope_min     <- slope_ob2 - 10
+slope_max     <- slope_ob2 + 10
+intercept_min <- intercept_ob2 - 10
+intercept_max <- intercept_ob2 + 10
+
+# Create sequence of numbers for slope and intercept to create gric
+slope_seq     <- seq(slope_min, slope_max, by = 0.1)
+intercept_seq <- seq(intercept_min, intercept_max, by = 0.1)
+
+#creat Negative Log Likelihood (nll)
+nll <- function(slope_ob2, intercept_ob2, x, y, sigma_bar) {
+  mu <- slope_ob2 + intercept_ob2*x
+  (n/2)*log(2*pi*sigma_bar^2) + (1/(2*sigma_bar^2))*sum((y - mu)^2)
+}
+
+# Create grid based on sequence values
+grid <- expand.grid(b0 = intercept_seq, b1 = slope_seq) 
+
+# Compute Negative log likelihood for each combination
+grid$nll <- apply(grid, 1, function(p) {
+  nll(p[1], p[2], x, y, sigma_bar)
+})
+
+## B. Optimization using the optim() function # C. Verify that the optimization routine converged and is not sensitive to starting values
+
+#I did not understnad this part very much and could not get the function to run with my formatting, so this is ChatGPT assisted:
+
+nll_par <- function(par, x, y, sigma) {
+  b0 <- par[1]
+  b1 <- par[2]
+  mu <- b0 + b1 * x
+  n <- length(y)
+  
+  (n/2)*log(2*pi*sigma_bar^2) + (1/(2*sigma_bar^2))*sum((y - mu)^2)
+}
+
+# Back to me understanding this from lecture, the optim function takes the parameters of interest and starts at 
+optim_res <- optim(
+  par = lm_check ,
+  fn = nll_par,
+  x = x,
+  y = y,
+  sigma = sigma_bar 
+)
+
+print(optim_res)
+
+#Obj3: Estimate the parameters of the linear regression of area burned on dragon size using maximum likelihood assuming that the residuals are normally distributed:
+
+slope_ob3 <- coef(lm_check)[1]   # this is the slope vlaue
+intercept_ob3 <- coef(lm_check)[2]   # this is the intercept value
+
+# Create search ranges
+slope_min     <- slope_ob3 - 10
+slope_max     <- slope_ob3 + 10
+intercept_min <- intercept_ob3 - 10
+intercept_max <- intercept_ob3 + 10
+
+# Create sequence of numbers for slope and intercept to create gric
+slope_seq     <- seq(slope_min, slope_max, by = 0.1)
+intercept_seq <- seq(intercept_min, intercept_max, by = 0.1)
+
+# Create nll for Maximum Likelihood - I had chatgpt help with this because I struggled geting the formula right
+nll <- function(intercept, slope, y, x){
+  residuals <- y - (intercept + slope * x)
+  sigma3 <- mean(residuals^2)
+  -(-n/2*log(2*pi*sigma3) - sum(residuals^2)/(2*sigma3))
+}
+
+#This is where I became very unsure about the difference between Maximum and Ordinary Least Squares and while I see the formulas are differnet, I am not quite following what they statistically are saying differently.
+
+#Objective 4
+#My understanding is that the values are very very similar but the degree of ability to represent the data realistically between them differ (this is how I understood ordinary verus maximum, but could we talk about it in class?)
